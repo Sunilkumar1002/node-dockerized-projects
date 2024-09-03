@@ -1,33 +1,27 @@
 pipeline {
     agent any
-
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
-        stage('Test') {
+        stage('Install Dependencies') {
             steps {
-                // Install npm non-interactively
-                sh 'sudo apt-get update'
-                sh 'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y npm'
-                sh 'npm test'
+                script {
+                    sh '''
+                    sudo apt-get update
+                    sudo apt-get install -y curl
+                    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+                    sudo apt-get install -y nodejs
+                    '''
+                }
             }
         }
-
         stage('Build') {
             steps {
-                sh 'npm run build'
+                // Your build steps here
             }
-        }
-
-        stage('Build Image') {
-            steps {
-                sh 'docker build -t my-node-app:1.0 .'
-            }
-        }
         }
     }
 }
